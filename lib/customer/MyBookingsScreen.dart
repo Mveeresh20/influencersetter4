@@ -412,11 +412,37 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   SharedPreferences? prefs;
   String? loginEmail;
   String? userId;
+  final ScrollController _scrollController = ScrollController();
+  bool _showLeftArrow = false;
+  bool _showRightArrow = false;
+  final double _buttonSpacing = 8.0;
+  final double _buttonWidth = 120.0;
+  final double _arrowSize = 24.0;
+   final List<Color> _cardGradientColors = [
+    Colors.purple.shade300,
+    Colors.purple.shade600,
+  ];
 
   @override
   void initState() {
     super.initState();
     _initializePreferences();
+    _scrollController.addListener(_updateScrolledIndicator);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_updateScrolledIndicator);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateScrolledIndicator() {
+    setState(() {
+      _showLeftArrow = _scrollController.position.pixels > 0;
+      _showRightArrow = _scrollController.position.maxScrollExtent >
+          _scrollController.position.pixels;
+    });
   }
 
   Future<void> _initializePreferences() async {
@@ -481,54 +507,114 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Bookings'),
+        title: const Text('My Bookings', style: TextStyle(color: Colors.white),),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xffFF04AB), Color(0xffAE26CD)],
+              colors: [Colors.purple, Colors.purple],
             ),
           ),
         ),
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xffFF04AB), Color(0xffAE26CD)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: Colors.white,
+        // decoration: const BoxDecoration(
+        //   color: Colors.purple.shade200,
+        //   // gradient: LinearGradient(
+        //   //   colors: Colors.purple[100],
+        //   //   begin: Alignment.topCenter,
+        //   //   end: Alignment.bottomCenter,
+        //   // ),
+        // ),
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _statusButton('all', 'All', Icons.all_inclusive),
-                    _statusButton('pending', 'Pending', Icons.pending),
-                    _statusButton('ongoing', 'Ongoing', Icons.timelapse),
-                    _statusButton('canceled', 'Canceled', Icons.cancel),
-                    _statusButton('completed', 'Completed', Icons.check_circle),
-                  ],
+              child: Card(
+                
+                 
+                
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      gradient: LinearGradient(
+        colors: [
+          Colors.purple.shade300,
+          Colors.purple.shade400,
+        ],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ),
+    ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                       SingleChildScrollView(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            SizedBox(width: _buttonSpacing  + _arrowSize),
+                            Row(
+                              children: [
+                            _statusButton('all', 'All', Icons.all_inclusive),
+                            _statusButton('pending', 'Pending', Icons.pending),
+                            _statusButton('ongoing', 'Ongoing', Icons.timelapse),
+                            _statusButton('canceled', 'Canceled', Icons.cancel),
+                            _statusButton('completed', 'Completed', Icons.check_circle),
+                          ],
+                        ),
+                  
+                        SizedBox(width: _buttonSpacing + _arrowSize,)
+                      ]),
+                  ),
+                  if(_showLeftArrow)
+                  Positioned(
+                    left: 0,
+                    child: Container(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.black,
+                      size: _arrowSize,
+                    ),
+                  )),
+                  if(_showRightArrow)
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Icon(Icons.arrow_forward_ios,
+                      color: Colors.black,
+                      size: _arrowSize,),
+                    ))
+                  
+                  ]),
+                  ),
                 ),
               ),
             ),
             isLoading
-                ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Colors.white))
                 : Expanded(
-              child: RefreshIndicator(
-                onRefresh: fetchBookings,
-                child: ListView.builder(
-                  itemCount: filteredBookings.length,
-                  itemBuilder: (context, index) {
-                    final booking = filteredBookings[index];
-                    return _buildBookingCard(booking);
-                  },
-                ),
-              ),
-            ),
+                    child: RefreshIndicator(
+                      onRefresh: fetchBookings,
+                      child: ListView.builder(
+                        itemCount: filteredBookings.length,
+                        itemBuilder: (context, index) {
+                          final booking = filteredBookings[index];
+                          return _buildBookingCard(booking);
+                        },
+                      ),
+                    ),
+                  ),
           ],
         ),
       ),
@@ -538,25 +624,32 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   Widget _statusButton(String status, String text, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          setState(() {
-            selectedStatus = status;
-          });
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: selectedStatus == status ? Colors.white : Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+      child: SizedBox(
+        height: 42,
+        width: 140,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            setState(() {
+              selectedStatus = status;
+            });
+          },
+          style: ElevatedButton.styleFrom(
+            
+            backgroundColor:
+                selectedStatus == status ? Colors.white : Colors.green,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
-        icon: Icon(icon, color: selectedStatus == status ? Colors.purple : Colors.white),
-        label: Text(
-          text,
-          style: TextStyle(
-            color: selectedStatus == status ? Colors.purple : Colors.white,
-            fontWeight: FontWeight.bold,
+          icon: Icon(icon,
+              color: selectedStatus == status ? Colors.purple : Colors.white),
+          label: Text(
+            text,
+            style: TextStyle(
+              color: selectedStatus == status ? Colors.purple : Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -565,6 +658,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
   Widget _buildBookingCard(Map<String, dynamic> booking) {
     return Card(
+      color: Colors.purple.shade400,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
@@ -590,35 +684,36 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.purple,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                  const Icon(Icons.calendar_today,
+                      size: 16, color: Color.fromARGB(255, 11, 234, 19)),
                   const SizedBox(width: 8),
                   Text(
                     'Date: ${booking['b_date']}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    style: const TextStyle(fontSize: 14, color: Colors.white),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  const Icon(Icons.attach_money, size: 16, color: Colors.grey),
+                  const Icon(Icons.attach_money, size: 16,  color: Color.fromARGB(255, 11, 234, 19)),
                   const SizedBox(width: 8),
                   Text(
                     'Price: ₹${booking['b_price']}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    style: const TextStyle(fontSize: 14, color: Colors.white),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  const Icon(Icons.star, size: 16, color: Colors.grey),
+                  const Icon(Icons.star, size: 16, color: Color.fromARGB(255, 11, 234, 19)),
                   const SizedBox(width: 8),
                   Text(
                     'Status: ${booking['b_status'].toUpperCase()}',
@@ -912,7 +1007,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 class BookingDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> booking;
 
-  const BookingDetailsScreen({Key? key, required this.booking}) : super(key: key);
+  const BookingDetailsScreen({Key? key, required this.booking})
+      : super(key: key);
 
   @override
   State<BookingDetailsScreen> createState() => _BookingDetailsScreenState();
@@ -927,7 +1023,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     super.initState();
     // Initialize video player if project_url is available
     if (widget.booking['project_url'] != null) {
-      _initializeVideoPlayer("${Config.apiDomain}/${widget.booking['project_url']}");
+      _initializeVideoPlayer(
+          "${Config.apiDomain}/${widget.booking['project_url']}");
     } else {
       _isLoadingVideo = false;
     }
@@ -963,7 +1060,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             title: const Text('Permission Required'),
             content: const Text(
               'Storage permission is required to download videos. '
-                  'Please enable it in the app settings.',
+              'Please enable it in the app settings.',
             ),
             actions: [
               TextButton(
@@ -1064,12 +1161,17 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     _buildDetailRow('Influencer', widget.booking['c_Name']),
                     _buildDetailRow('Requirement', widget.booking['b_desc']),
                     _buildDetailRow('Date', widget.booking['b_date']),
-                    _buildDetailRow('Status', widget.booking['b_status'].toUpperCase()),
+                    _buildDetailRow(
+                        'Status', widget.booking['b_status'].toUpperCase()),
                     _buildDetailRow('Price', '₹${widget.booking['b_price']}'),
-                    _buildDetailRow('Payment Mode', widget.booking['payment_mode']),
-                    _buildDetailRow('Payment Status', widget.booking['payment_status']),
-                    _buildDetailRow('Deadline Date', widget.booking['deadline_date']),
-                    _buildDetailRow('Status Date', widget.booking['status_date']),
+                    _buildDetailRow(
+                        'Payment Mode', widget.booking['payment_mode']),
+                    _buildDetailRow(
+                        'Payment Status', widget.booking['payment_status']),
+                    _buildDetailRow(
+                        'Deadline Date', widget.booking['deadline_date']),
+                    _buildDetailRow(
+                        'Status Date', widget.booking['status_date']),
                   ],
                 ),
               ),
@@ -1117,7 +1219,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    if (_videoPlayerController!.value.isPlaying) {
+                                    if (_videoPlayerController!
+                                        .value.isPlaying) {
                                       _videoPlayerController!.pause();
                                     } else {
                                       _videoPlayerController!.play();
@@ -1155,7 +1258,8 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                 ),
                 child: const Text(
                   'Back',
