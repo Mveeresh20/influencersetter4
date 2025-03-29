@@ -602,8 +602,6 @@ class _BrandLoginDashboardState extends State<HomeScreen> {
   }
 */
 
-
-
 /*
 import 'package:flutter/material.dart';
 import 'package:social_media_buttons/social_media_button.dart';
@@ -810,9 +808,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 */
+//
 import 'package:flutter/material.dart';
 import 'package:social_media_buttons/social_media_button.dart';
 import 'package:tngtong/config.dart';
+import 'package:tngtong/customer/top_influencer.dart';
+import 'package:tngtong/customer/trending_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'nav_bar.dart';
 import 'package:http/http.dart' as http;
@@ -823,6 +824,7 @@ import 'ProfileScreen.dart';
 import 'package:tngtong/config.dart'; // Replace with your config file
 import 'package:tngtong/api_service.dart';
 import 'walletScreen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -849,6 +851,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _initializePreferences();
     //loadData();
   }
+
   Future<void> _initializePreferences() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -867,16 +870,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     checkKycStatus();
     getWallteBalance();
-
   }
+
   Future<void> getWallteBalance() async {
     double? balance = await ApiService.getBrandWalletBalance(userId);
     setState(() {
       walletBalance = balance ?? 0;
     });
   }
+
   Future<void> loadData() async {
-    final String apiUrl = "https://demo.infoskaters.com/api/get_top_trending_cel.php";
+    final String apiUrl =
+        "https://demo.infoskaters.com/api/get_top_trending_cel.php";
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
@@ -888,15 +893,17 @@ class _HomeScreenState extends State<HomeScreen> {
           filteredTopInfluencers = topInfluencers;
         });
       } else {
-        print("Error: Failed to load data. Status Code: ${response.statusCode}");
+        print(
+            "Error: Failed to load data. Status Code: ${response.statusCode}");
       }
     } catch (e) {
       print("Error: $e");
     }
   }
+
   Future<void> checkKycStatus() async {
     try {
-      String? status = await ApiService.getKycStatus(userId,"user");
+      String? status = await ApiService.getKycStatus(userId, "user");
       setState(() {
         kycStatus = status;
       });
@@ -917,8 +924,12 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(status == "Pending" ? "KYC Approval Pending" : "KYC Not Completed"),
-          content: Text(status == "Pending" ? "Your KYC approval is pending." : "Your KYC is not yet completed. Please complete your KYC."),
+          title: Text(status == "Pending"
+              ? "KYC Approval Pending"
+              : "KYC Not Completed"),
+          content: Text(status == "Pending"
+              ? "Your KYC approval is pending."
+              : "Your KYC is not yet completed. Please complete your KYC."),
           actions: <Widget>[
             TextButton(
               child: Text("Complete KYC"),
@@ -926,7 +937,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.of(context).pop();
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProfileUpdateScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => ProfileUpdateScreen()),
                 );
               },
             ),
@@ -940,13 +952,13 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       filteredTrendingAds = trendingAds
           .where((influencer) =>
-      influencer['name'].toLowerCase().contains(query.toLowerCase()) ||
-          influencer['price'].toString().contains(query))
+              influencer['name'].toLowerCase().contains(query.toLowerCase()) ||
+              influencer['price'].toString().contains(query))
           .toList();
       filteredTopInfluencers = topInfluencers
           .where((influencer) =>
-      influencer['name'].toLowerCase().contains(query.toLowerCase()) ||
-          influencer['price'].toString().contains(query))
+              influencer['name'].toLowerCase().contains(query.toLowerCase()) ||
+              influencer['price'].toString().contains(query))
           .toList();
     });
   }
@@ -970,9 +982,73 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSectionTitle("Trending Ads"),
+                        Row(
+                          children: [
+                            _buildSectionTitle("Trending Ads"),
+                            const SizedBox(
+                              width: 100,
+                            ),
+                            SizedBox(
+                              height: 35,
+                              width: 90,
+                              child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.purple[500],
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 20),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => TrendingAds(
+                                                trendingAds: trendingAds)));
+                                  },
+                                  child: const Text(
+                                    "View all",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
+                          ],
+                        ),
                         _buildHorizontalList(filteredTrendingAds),
-                        _buildSectionTitle("Top Influencers"),
+                        Row(
+                          children: [
+                            _buildSectionTitle(
+                              "Top Influencers",
+                            ),
+                            const SizedBox(
+                              width: 85,
+                            ),
+                            SizedBox(
+                              height: 35,
+                              width: 90,
+                              child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.purple[500],
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 20),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => TopInfluencer(
+                                                influencers: topInfluencers)));
+                                  },
+                                  child: const Text(
+                                    "View all",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ),
+                          ],
+                        ),
                         _buildInfluencerGrid(filteredTopInfluencers),
                       ],
                     ),
@@ -1008,7 +1084,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       height: 50,
       padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.purple.shade500, Colors.purple.shade500])),
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              colors: [Colors.purple.shade500, Colors.purple.shade500])),
       child: Row(
         children: [
           Image.asset(
@@ -1018,10 +1096,16 @@ class _HomeScreenState extends State<HomeScreen> {
             fit: BoxFit.cover,
           ),
           const SizedBox(
-            width: 2,
+            width: 0,
           ),
-          IconButton(icon: const Icon(Icons.menu, color: Colors.white), onPressed: () => setState(() => _isNavBarOpen = true)),
-          const Text("Influencer Setter", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => setState(() => _isNavBarOpen = true)),
+          const Text("Influencer Setter",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
           const Spacer(),
           // Wallet Icon with Balance (clickable)
           GestureDetector(
@@ -1034,10 +1118,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 color: Colors.purple.shade400,
@@ -1063,7 +1144,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          IconButton(icon: const Icon(Icons.notifications, color: Colors.white), onPressed: () {}),
+          IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.white),
+              onPressed: () {}),
         ],
       ),
     );
@@ -1091,7 +1174,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHorizontalList(List<dynamic> data) {
     return SizedBox(
-      height: 325,
+      height: 340,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: data.length,
@@ -1102,15 +1185,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildInfluencerGrid(List<dynamic> data) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(0),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(), // Disable GridView scrolling
+        physics:
+            const NeverScrollableScrollPhysics(), // Disable GridView scrolling
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, // 2 columns
           crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.6, // Adjust card aspect ratio
+          mainAxisSpacing: 7,
+          childAspectRatio: 0.5255, // Adjust card aspect ratio
         ),
         itemCount: data.length,
         itemBuilder: (context, index) => _buildCard(context, data[index]),
@@ -1118,53 +1202,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /*Widget _buildCard(BuildContext context, dynamic influencer) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HireInfluencerScreen(influencer: influencer),
-          ),
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-        child: SizedBox(
-          width: 150,
-          child: Column(
-            children: [
-              Container(
-                width: 150,
-                height: 120,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      influencer['image'] != null && influencer['image'].toString().isNotEmpty
-                          ? "${Config.apiDomain}/${influencer['image']}"
-                          : "https://demo.infoskaters.com/api/uploads/default_profile.png",
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text(influencer['name'] ?? "Unknown", style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text("Price: ₹.${influencer['price'] ?? 0}", style: const TextStyle(color: Colors.grey)),
-                    _buildSocialIcons(influencer['facebook'], influencer['instagram']),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }*/
   Widget _buildCard(BuildContext context, dynamic influencer) {
     return GestureDetector(
       onTap: () {
@@ -1181,64 +1218,69 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15), // Rounded corners
         ),
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.45, // Responsive width
-          padding: const EdgeInsets.all(8), // Padding inside the card
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // Adjust height dynamically
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Profile Image
-              AspectRatio(
-                aspectRatio: 1, // Maintain a square aspect ratio
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        influencer['image'] != null && influencer['image'].toString().isNotEmpty
-                            ? "${Config.apiDomain}/${influencer['image']}"
-                            : "https://demo.infoskaters.com/api/uploads/default_profile.png",
+        child: IntrinsicHeight(
+          child: Container(
+            height: 700,
+            width: MediaQuery.of(context).size.width * 0.45, // Responsive width
+            padding: const EdgeInsets.all(8), // Padding inside the card
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Adjust height dynamically
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Profile Image
+                AspectRatio(
+                  aspectRatio: 1, // Maintain a square aspect ratio
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          influencer['image'] != null &&
+                                  influencer['image'].toString().isNotEmpty
+                              ? "${Config.apiDomain}/${influencer['image']}"
+                              : "https://demo.infoskaters.com/api/uploads/default_profile.png",
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8), // Spacing
-              // Name
-              Text(
-                influencer['name'] ?? "Unknown",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                const SizedBox(height: 8), // Spacing
+                // Name
+                Text(
+                  influencer['name'] ?? "Unknown",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis, // Handle long names
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis, // Handle long names
-              ),
-              const SizedBox(height: 4), // Spacing
-              // Price
-              Text(
-                "Price: ₹.${influencer['price'] ?? 0}",
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
+                const SizedBox(height: 4), // Spacing
+                // Price
+                Text(
+                  "Price: ₹.${influencer['price'] ?? 0}",
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8), // Spacing
-              // Social Media Icons with Flexible height
-              Flexible(child: _buildSocialIcons(influencer)),
-            ],
+                const SizedBox(height: 8), // Spacing
+                // Social Media Icons with Flexible height
+                Flexible(
+                  child: _buildSocialIcons(influencer),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-
   Widget _buildSocialIcons(dynamic influencer) {
-    // List of social media icons to display
-    List<Widget> icons = [];
+    List<Widget> allIcons = [];
+    bool showAll = false;
 
     // Add Facebook Icon
     if (influencer['facebook_link'] != null &&
@@ -1246,10 +1288,10 @@ class _HomeScreenState extends State<HomeScreen> {
         influencer['facebook_followers'] != null &&
         influencer['facebook_followers'] != "N/A" &&
         int.tryParse(influencer['facebook_followers'])! > 0) {
-      icons.add(
+      allIcons.add(
         SocialMediaButton.facebook(
           onTap: () => launchUrl(Uri.parse(influencer['facebook_link'])),
-          size: 16, // Smaller size for better fit
+          size: 18,
           color: Colors.blue,
         ),
       );
@@ -1261,10 +1303,10 @@ class _HomeScreenState extends State<HomeScreen> {
         influencer['instagram_followers'] != null &&
         influencer['instagram_followers'] != "N/A" &&
         int.tryParse(influencer['instagram_followers'])! > 0) {
-      icons.add(
+      allIcons.add(
         SocialMediaButton.instagram(
           onTap: () => launchUrl(Uri.parse(influencer['instagram_link'])),
-          size: 16,
+          size: 18,
           color: Colors.purple,
         ),
       );
@@ -1276,10 +1318,10 @@ class _HomeScreenState extends State<HomeScreen> {
         influencer['linkedin_followers'] != null &&
         influencer['linkedin_followers'] != "N/A" &&
         int.tryParse(influencer['linkedin_followers'])! > 0) {
-      icons.add(
+      allIcons.add(
         SocialMediaButton.linkedin(
           onTap: () => launchUrl(Uri.parse(influencer['linkedin_link'])),
-          size: 16,
+          size: 18,
           color: Colors.blue,
         ),
       );
@@ -1291,10 +1333,10 @@ class _HomeScreenState extends State<HomeScreen> {
         influencer['youtube_followers'] != null &&
         influencer['youtube_followers'] != "N/A" &&
         int.tryParse(influencer['youtube_followers'])! > 0) {
-      icons.add(
+      allIcons.add(
         SocialMediaButton.youtube(
           onTap: () => launchUrl(Uri.parse(influencer['youtube_link'])),
-          size: 16,
+          size: 18,
           color: Colors.red,
         ),
       );
@@ -1306,114 +1348,49 @@ class _HomeScreenState extends State<HomeScreen> {
         influencer['twitter_followers'] != null &&
         influencer['twitter_followers'] != "N/A" &&
         int.tryParse(influencer['twitter_followers'])! > 0) {
-      icons.add(
+      allIcons.add(
         SocialMediaButton.twitter(
           onTap: () => launchUrl(Uri.parse(influencer['twitter_link'])),
-          size: 16,
+          size: 18,
           color: Colors.blue,
         ),
       );
     }
 
-    // Ensure at least 5 icons (2 rows)
-    if (icons.length < 5) {
-      icons.addAll(List.filled(5 - icons.length, const SizedBox.shrink()));
-    }
-
-    // Display icons in a row with proper spacing
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4), // Reduced vertical padding
-      child: Wrap(
-        spacing: 4, // Reduced horizontal spacing between icons
-        runSpacing: 4, // Reduced vertical spacing between rows
-        alignment: WrapAlignment.center,
-        children: icons,
-      ),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          children: [
+            Row(
+              children: [
+                Wrap(
+                  spacing: -7.8,
+                  runSpacing: 1,
+                  alignment: WrapAlignment.center, // Center the icons
+                  children: showAll ? allIcons : allIcons.take(3).toList(),
+                ),
+              ],
+            ),
+            if (allIcons.length > 3)
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    showAll = !showAll;
+                  });
+                },
+                child: Text(showAll ? "View Less" : "See All"),
+              ),
+          ],
+        );
+      },
     );
   }
-  /*
-  Widget _buildSocialIcons(dynamic influencer) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Facebook Icon
-        if (influencer['facebook_link'] != null &&
-            influencer['facebook_link'].toString().isNotEmpty &&
-            influencer['facebook_followers'] != null &&
-            influencer['facebook_followers'] != "N/A" &&
-            int.tryParse(influencer['facebook_followers'])! > 0)
-          SocialMediaButton.facebook(
-            onTap: () => launchUrl(Uri.parse(influencer['facebook_link'])),
-            size: 30,
-            color: Colors.blue,
-          ),
-
-        // Instagram Icon
-        if (influencer['instagram_link'] != null &&
-            influencer['instagram_link'].toString().isNotEmpty &&
-            influencer['instagram_followers'] != null &&
-            influencer['instagram_followers'] != "N/A" &&
-            int.tryParse(influencer['instagram_followers'])! > 0)
-          SocialMediaButton.instagram(
-            onTap: () => launchUrl(Uri.parse(influencer['instagram_link'])),
-            size: 30,
-            color: Colors.purple,
-          ),
-
-        // LinkedIn Icon
-        if (influencer['linkedin_link'] != null &&
-            influencer['linkedin_link'].toString().isNotEmpty &&
-            influencer['linkedin_followers'] != null &&
-            influencer['linkedin_followers'] != "N/A" &&
-            int.tryParse(influencer['linkedin_followers'])! > 0)
-          SocialMediaButton.linkedin(
-            onTap: () => launchUrl(Uri.parse(influencer['linkedin_link'])),
-            size: 30,
-            color: Colors.blue,
-          ),
-
-        // YouTube Icon
-        if (influencer['youtube_link'] != null &&
-            influencer['youtube_link'].toString().isNotEmpty &&
-            influencer['youtube_followers'] != null &&
-            influencer['youtube_followers'] != "N/A" &&
-            int.tryParse(influencer['youtube_followers'])! > 0)
-          SocialMediaButton.youtube(
-            onTap: () => launchUrl(Uri.parse(influencer['youtube_link'])),
-            size: 30,
-            color: Colors.red,
-          ),
-
-        // Twitter Icon
-        if (influencer['twitter_link'] != null &&
-            influencer['twitter_link'].toString().isNotEmpty &&
-            influencer['twitter_followers'] != null &&
-            influencer['twitter_followers'] != "N/A" &&
-            int.tryParse(influencer['twitter_followers'])! > 0)
-          SocialMediaButton.twitter(
-            onTap: () => launchUrl(Uri.parse(influencer['twitter_link'])),
-            size: 30,
-            color: Colors.blue,
-          ),
-      ],
-    );
-  }*/
- /* Widget _buildSocialIcons(String? fbUrl, String? instaUrl) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (fbUrl != null && fbUrl.isNotEmpty)
-          IconButton(icon: const Icon(Icons.facebook, color: Colors.blue, size: 30), onPressed: () => launchUrl(Uri.parse(fbUrl))),
-        if (instaUrl != null && instaUrl.isNotEmpty)
-          SocialMediaButton.instagram(onTap: () => launchUrl(Uri.parse(instaUrl)), size: 30, color: Colors.purple),
-      ],
-    );
-  }*/
 
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+      child: Text(title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
     );
   }
 }
