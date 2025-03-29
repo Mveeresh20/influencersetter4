@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tngtong/customer/HireInfluencerScreen.dart';
 import 'package:tngtong/config.dart';
 import 'package:social_media_buttons/social_media_button.dart';
@@ -38,7 +39,12 @@ class _TopInfluencerState extends State<TopInfluencer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Top Influencers')),
+      appBar: AppBar(
+          backgroundColor: Colors.purple,
+          title: Text(
+            'Top Influencers',
+            style: TextStyle(color: Colors.white),
+          )),
       body: Column(
         children: [
           _buildSearchBar(),
@@ -61,34 +67,35 @@ class _TopInfluencerState extends State<TopInfluencer> {
   }
 
   Widget _buildSearchBar() {
-  return Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), // Adjust blur intensity
-        child: Container(
-          color: Colors.blue.withOpacity(0.1), // Very subtle white overlay
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(vertical: 8),
-              hintText: "Search influencer by name or price",
-              border: InputBorder.none,
-              prefixIcon: const Icon(Icons.search),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter:
+              ImageFilter.blur(sigmaX: 20, sigmaY: 20), // Adjust blur intensity
+          child: Container(
+            color: Colors.blue.withOpacity(0.2), // Very subtle white overlay
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 8),
+                hintText: "Search influencer by name or price",
+                border: InputBorder.none,
+                prefixIcon: const Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                _searchInfluencers(value);
+              },
+              onSubmitted: (value) {
+                _searchInfluencers(value);
+              },
             ),
-            onChanged: (value) {
-              _searchInfluencers(value);
-            },
-            onSubmitted: (value) {
-              _searchInfluencers(value);
-            },
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildCard(BuildContext context, dynamic influencer) {
     return GestureDetector(
@@ -265,4 +272,3 @@ class _TopInfluencerState extends State<TopInfluencer> {
     );
   }
 }
-  

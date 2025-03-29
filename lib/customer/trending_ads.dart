@@ -40,7 +40,12 @@ class _TrendingAdsState extends State<TrendingAds> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Trending Ads')),
+      appBar: AppBar(
+          backgroundColor: Colors.purple,
+          title: Text(
+            'Trending Ads',
+            style: TextStyle(color: Colors.white),
+          )),
       body: Column(
         children: [
           // Search bar
@@ -72,7 +77,7 @@ class _TrendingAdsState extends State<TrendingAds> {
           filter:
               ImageFilter.blur(sigmaX: 20, sigmaY: 20), // Adjust blur intensity
           child: Container(
-            color: Colors.blue.withOpacity(0.1), // Very subtle white overlay
+            color: Colors.blue.withOpacity(0.2), // Very subtle white overlay
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
