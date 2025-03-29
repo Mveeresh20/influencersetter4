@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:tngtong/customer/HireInfluencerScreen.dart';
 import 'package:tngtong/config.dart';
@@ -39,24 +41,7 @@ class _TopInfluencerState extends State<TopInfluencer> {
       appBar: AppBar(title: Text('Top Influencers')),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: "Search influencer by name or price",
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-                prefixIcon: const Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                _searchInfluencers(value);
-              },
-              onSubmitted: (value) {
-                _searchInfluencers(value);
-              },
-            ),
-          ),
+          _buildSearchBar(),
           Expanded(
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -74,6 +59,36 @@ class _TopInfluencerState extends State<TopInfluencer> {
       ),
     );
   }
+
+  Widget _buildSearchBar() {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), // Adjust blur intensity
+        child: Container(
+          color: Colors.blue.withOpacity(0.1), // Very subtle white overlay
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(vertical: 8),
+              hintText: "Search influencer by name or price",
+              border: InputBorder.none,
+              prefixIcon: const Icon(Icons.search),
+            ),
+            onChanged: (value) {
+              _searchInfluencers(value);
+            },
+            onSubmitted: (value) {
+              _searchInfluencers(value);
+            },
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
   Widget _buildCard(BuildContext context, dynamic influencer) {
     return GestureDetector(

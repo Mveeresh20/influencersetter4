@@ -809,6 +809,8 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 */
 //
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:social_media_buttons/social_media_button.dart';
 import 'package:tngtong/config.dart';
@@ -1152,25 +1154,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: TextField(
-        controller: _searchController,
-        decoration: InputDecoration(
-          hintText: "Search influencer by name or price",
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-          prefixIcon: const Icon(Icons.search),
+  
+Widget _buildSearchBar() {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), // Adjust blur intensity
+        child: Container(
+          color: Colors.blue.withOpacity(0.1), // Very subtle white overlay
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(vertical: 8),
+              hintText: "Search influencer by name or price",
+              border: InputBorder.none,
+              prefixIcon: const Icon(Icons.search),
+            ),
+            onChanged: (value) {
+              _searchInfluencers(value);
+            },
+            onSubmitted: (value) {
+              _searchInfluencers(value);
+            },
+          ),
         ),
-        onChanged: (value) {
-          _searchInfluencers(value); // Trigger search on text change
-        },
-        onSubmitted: (value) {
-          _searchInfluencers(value); // Trigger search on submit
-        },
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildHorizontalList(List<dynamic> data) {
     return SizedBox(
